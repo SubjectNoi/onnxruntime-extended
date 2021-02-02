@@ -2203,7 +2203,22 @@ inputs by their magnitude, rather than gates inputs by their sign as in ReLUs.)D
           {"tensor(float16)", "tensor(float)", "tensor(double)", "tensor(bfloat16)"},
           "Constrain input and output types to float tensors.")
       .TypeAndShapeInferenceFunction(ONNX_NAMESPACE::propagateShapeAndTypeFromFirstInput);
-
+  
+  static const char* Comm_ver1_doc = "NULL";
+  ONNX_CONTRIB_OPERATOR_SCHEMA(Comm)
+      .SetDomain(kOnnxDomain)
+      .SinceVersion(12)
+      .SetDoc(Comm_ver1_doc)
+      .Input(0, "IN", "", "T")
+      .Output(0, "OUT", "", "T")
+      .Attr("sub_type", "", AttributeProto::STRING, true)
+      .Attr("comm_target", "", AttributeProto::STRING, true)
+      .Attr("comm_size_in_KB", "", AttributeProto::FLOAT, true)
+      .Attr("comm_tag", "", AttributeProto::INT, true)
+      .Attr("launch_order", "", AttributeProto::INT, false)
+      .TypeConstraint("T", {"tensor(float)", "tensor(float32)", "tensor(int64)"}, "")
+      .TypeAndShapeInferenceFunction(ONNX_NAMESPACE::propagateShapeAndTypeFromFirstInput);
+  
   static const char* BiasGelu_ver1_doc =
       R"DOC(Bias Gelu.
 It's an extension of Gelu. It takes the sum of input A and bias input B as the input of Gelu activation. )DOC";
