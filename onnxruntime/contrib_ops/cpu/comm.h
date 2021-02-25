@@ -7,6 +7,9 @@
 #include "core/platform/threadpool.h"
 #include <unsupported/Eigen/SpecialFunctions>
 #include "core/providers/cpu/element_wise_ranged_transform.h"
+#include "comm_buf.h"
+
+comm_buffer comm_node_buf;
 
 namespace onnxruntime {
 namespace contrib {
@@ -36,13 +39,21 @@ public:
         T* output_data = output->template MutableData<T>();
 
         auto in_shape = input->Shape();
-        std::cout << "Computing Comm Node " << tag << ", Target " << target << ", Subtype " << sub_type << ", Input Size Dim " << in_shape.NumDimensions() << "\n";
+        // std::cout << "Computing Comm Node " << tag << ", Target " << target << ", Subtype " << sub_type << ", Input Size Dim " << in_shape.NumDimensions() << "\n";
         for (size_t i = 0; i < in_shape.NumDimensions(); i++) {
             std::cout << in_shape[i] << " ";
         }
         std::cout << "\n";
         for (int i = 0; i < input->Shape().Size(); i++) {
             output_data[i] = input_data[i];
+        }
+        if (sub_type == "Notify") {
+            std::cout << "Notifying buffer @: " << tag << std::endl;
+            comm_node_buf.notify_with_tag(tag);
+        }
+        else if (sub_type == "Wait") {
+            std::cout << "  Waiting buffer @: " << tag << std::endl;
+            comm_node_buf.wait_with_tag(tag);
         }
         return Status::OK();
     }
